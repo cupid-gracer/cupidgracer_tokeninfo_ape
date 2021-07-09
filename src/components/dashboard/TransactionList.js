@@ -107,23 +107,26 @@ function TransactionList(props)
   let txRows = [];
   // createData('sell', createCell(3.2546, "BTC"), createCell("$18.55", "17.155497 BUSD"), createCell("$46.15", "PcancakeSwap"), createCell("6:15:54", "AM"), createCell("0xc95c", "Track")),
 
-  getContract(tokenAddress);
-
-  web3.eth.getBlockNumber().then(currentBlock => {
-    contract.getPastEvents({
-      filter: {},
-      fromBlock: currentBlock * 1.0 - 1000,
-      toBlock: currentBlock * 1.0,
-      topics: [
-        // "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-      ]
-    }, function (error, events) {
-      console.log("events", events);
-    }
-  )
-});
 
 
+
+  useEffect(() => {
+    if(contract === undefined) return;
+    // console.log("contract", contract);
+    web3.eth.getBlockNumber().then(currentBlock => {
+      contract.getPastEvents({
+        filter: {},
+        fromBlock: currentBlock * 1.0 - 1000,
+        toBlock: currentBlock * 1.0,
+        topics: [
+          // "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+        ]
+        }, function (error, events) {
+          console.log("events", events);
+        }
+      )
+    });
+  }, [])
 
 
 
@@ -186,8 +189,9 @@ function TransactionList(props)
             const tokenPrice = await getTokenPrice(each.tokenAddress2);
             const tokens = each.amount1.toLocaleString();
             let pr = (each.amount2/each.amount1 * tokenPrice);
-            if(pr <= 0.01 ) pr = pr.toFixed(6);
+            if(pr <= 0.01 && pr >= 0.000001) pr = pr.toFixed(6);
             else if(pr > 0.01 ) pr = pr.toFixed(2).toLocaleString();
+            else if(pr < 0.000001 ) pr = pr;
             let amout2price = (tokenPrice * each.amount2);
             if(amout2price <= 0.0001) amout2price = amout2price.toFixed(6);
             else if(amout2price > 0.0001 && amout2price < 0.01)amout2price = amout2price.toFixed(4);
@@ -204,6 +208,8 @@ function TransactionList(props)
           }
         setTrxHashes(_transactions.map(each => each.transactionHash));
         setTransactions(txRows);
+        getContract(tokenAddress);
+
       }
     })();
   },[tokenAddress]);
@@ -215,10 +221,10 @@ function TransactionList(props)
       <Table className={classes.table} size="small" aria-label="a dense table">
         <TableHead className={classes.txTH}>
           <StyledTableRow>
-            <StyledTableCell width="20%">Side</StyledTableCell>
-            <StyledTableCell width="20%" align="right">Tokens</StyledTableCell>
-            <StyledTableCell width="20%" align="right">Price</StyledTableCell>
-            <StyledTableCell width="14%" align="right">Price/Token</StyledTableCell>
+            <StyledTableCell width="10%">Side</StyledTableCell>
+            <StyledTableCell width="22%" align="right">Tokens</StyledTableCell>
+            <StyledTableCell width="22%" align="right">Price</StyledTableCell>
+            <StyledTableCell width="20%" align="right">Price/Token</StyledTableCell>
             <StyledTableCell width="13%" align="right">Time&nbsp;</StyledTableCell>
             <StyledTableCell width="13%" >Tx&nbsp;</StyledTableCell>
           </StyledTableRow>

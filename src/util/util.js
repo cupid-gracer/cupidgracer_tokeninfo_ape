@@ -282,6 +282,9 @@ class Util
                     taker {
                       address
                     }
+                    exchange{
+                        name
+                      }
                 }
             }
         }`
@@ -313,7 +316,7 @@ class Util
                     side: each.side, 
                     hash: each.transaction.hash,
                     address: each.taker.address, 
-                    protocol: each.protocol
+                    protocol: each.exchange.name
                 }
             }
             else if (each.side === "SELL") {
@@ -332,7 +335,7 @@ class Util
                     side: each.side, 
                     hash: each.transaction.hash,
                     address: each.taker.address, 
-                    protocol: each.protocol
+                    protocol: each.exchange.name
                 }
             }
         });
