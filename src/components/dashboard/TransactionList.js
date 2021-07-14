@@ -59,6 +59,10 @@ const useStyles = makeStyles({
       position: "sticky",   
       top: 0, 
       zIndex: 1
+    },
+    customA:{
+      color:"#111111",
+
     }
   });
   
@@ -79,7 +83,7 @@ function cellElement(element)
     <div style={{textAlign:element.bottom=="Track"? "left":"right",  fontSize:"12px"}}>
       {
         element.bottom=="Track"?
-        <a target="_blank" href={`https://bscscan.com/tx/${element.top}`}>{element.top.substring(0,6)}...</a>
+        <a target="_blank" href={`https://bscscan.com/tx/${element.top}`}  style={{color:"rgb(62 184 255)", textDecoration:"none"}}>{element.top.substring(0,20)}...</a>
         :<p style={{margin:"0"}}>{element.top}</p>
       }
       <p style={{margin:"0"}}>{element.bottom}</p>
@@ -90,9 +94,10 @@ function cellElement(element)
 function tokenRender(basicToken, renderToken)
 {
   return(
-  <Tooltip title={renderToken}>
-        <a target="_blank" href={`https://bscscan.com/token/${basicToken}?a=${renderToken}`}>{renderToken.substring(0,20)}...</a>
-  </Tooltip>);
+    <Tooltip title={renderToken}>
+          <a target="_blank" href={`https://bscscan.com/token/${basicToken}?a=${renderToken}`} style={{color:"rgb(62 184 255)", textDecoration:"none"}}>{renderToken.substring(0,20)}...</a>
+    </Tooltip>
+  );
 }
 
 
@@ -233,13 +238,13 @@ function TransactionList(props)
       <Table className={classes.table} size="small" aria-label="a dense table">
         <TableHead className={classes.txTH}>
           <StyledTableRow>
-            <StyledTableCell width="10%">Side</StyledTableCell>
-            <StyledTableCell width="10%" align="right">From</StyledTableCell>
-            <StyledTableCell width="10%" align="right">To</StyledTableCell>
-            <StyledTableCell width="22%" align="right">Tokens</StyledTableCell>
-            <StyledTableCell width="22%" align="right">Price</StyledTableCell>
-            <StyledTableCell width="13%" align="right">Age&nbsp;</StyledTableCell>
-            <StyledTableCell width="13%" >Tx&nbsp;</StyledTableCell>
+            <StyledTableCell width="9%">Side</StyledTableCell>
+            <StyledTableCell width="18%" align="left">From</StyledTableCell>
+            <StyledTableCell width="18%" align="left">To</StyledTableCell>
+            <StyledTableCell width="10%" align="right">Tokens</StyledTableCell>
+            <StyledTableCell width="15%" align="right">Price</StyledTableCell>
+            <StyledTableCell width="15%" align="right">Age&nbsp;</StyledTableCell>
+            <StyledTableCell width="15%" >Tx&nbsp;</StyledTableCell>
           </StyledTableRow>
         </TableHead>
         <TableBody>
@@ -248,13 +253,13 @@ function TransactionList(props)
             return(
             <StyledTableRow key={row.tx.top + row.price.top}>
               <StyledTableCell style={{color:cellColor}}>{row.side.toUpperCase()}</StyledTableCell>
-              <StyledTableCell style={{color:cellColor}} align="right">{tokenRender(tokenAddress, row.from)}</StyledTableCell>
-              <StyledTableCell style={{color:cellColor}} align="right">{tokenRender(tokenAddress, row.to)}</StyledTableCell>
+              <StyledTableCell style={{color:cellColor}} align="left">{tokenRender(tokenAddress, row.from)}</StyledTableCell>
+              <StyledTableCell style={{color:cellColor}} align="left">{tokenRender(tokenAddress, row.to)}</StyledTableCell>
               <StyledTableCell style={{color:cellColor}} align="right">{cellElement(row.tokens)}</StyledTableCell>
               <StyledTableCell style={{color:cellColor}} align="right">{cellElement(row.price)}</StyledTableCell>
               {/* <StyledTableCell style={{color:cellColor}} align="right">{cellElement(row.pt)}</StyledTableCell> */}
               <StyledTableCell style={{color:cellColor}} align="right"><Tooltip title={row.tooltip}>{cellElement(row.time)}</Tooltip></StyledTableCell>
-              <StyledTableCell style={{color:"#3eb8ff"}}>{cellElement(row.tx)}</StyledTableCell>
+              <StyledTableCell style={{color:"rgb(62 184 255)"}}>{cellElement(row.tx)}</StyledTableCell>
             </StyledTableRow >
           )}
           )}
