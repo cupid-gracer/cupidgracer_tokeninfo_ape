@@ -33,14 +33,13 @@ function LpHolding(props) {
                 if(!isAddressValid) return;
                 const data = await util.getLPTokenList(tokenAddress);
                 setLPTokens(data);
-                console.log("data", data);
             })();
         }, 10000);
         return () => clearInterval(dd);
     }, [tokenAddress])
 
     const listItems = lpTokens.map((data) => 
-        <div>
+        <div key={data.toTokenAddress + data.pairTokenAddress}>
             <Box m={1} />
             <Grid>
             <a

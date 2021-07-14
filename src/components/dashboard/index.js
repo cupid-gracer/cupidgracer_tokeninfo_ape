@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, makeStyles , Typography } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
-import Paper from "@material-ui/core/Paper";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useRouteMatch,
+  useParams
+} from "react-router-dom";
+
+import { useSelector, useDispatch } from 'react-redux';
+import { search,selectSearchToken } from '../../features/searchTokenSlice';
+
 import TokenInfo from "./TokenInfo";
 import TradingView from "./TradingView";
 import TransactionList from "./TransactionList";
 import Util from "../../util/util";
-
 import "../../App.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -17,14 +27,16 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     textAlign: "center",
     color: theme.palette.text.secondary,
-  },
+  }
 }));
 
 const util = new Util();
 
-
 function Dashboard() {
   const classes = useStyles();
+  let { tokenAddress } = useParams();
+  const dispatch = useDispatch();
+  dispatch(search(tokenAddress));
 
   return (
     <Container style={{marginTop:8}}>

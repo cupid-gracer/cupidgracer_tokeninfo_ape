@@ -1,14 +1,26 @@
 import React from 'react'
-import {BrowserRouter as Router} from 'react-router-dom';
 import './App.css';
 import Header from './components/header/Header';
 import Dashboard from './components/dashboard';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useRouteMatch,
+  useParams
+} from "react-router-dom";
 
 function App() {
+  // let match = useRouteMatch();
   return (
     <Router className="App">
       <Header/>
-      <Dashboard/>
+      <Switch>
+        <Route path={`/token/:tokenAddress`}>
+          <Dashboard/>
+        </Route>
+      </Switch>
     </Router>
   );
 }

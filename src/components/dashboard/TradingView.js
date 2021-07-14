@@ -5,7 +5,6 @@ import { selectTokenPair } from '../../features/tokenPairSlice';
 
 function TradingView() {
   const tokenPair = useSelector(selectTokenPair);
-  console.log("tokenPair", tokenPair);
   const [tp, setTP] = useState(tokenPair);
   useEffect(() => {
     setTP(tokenPair);

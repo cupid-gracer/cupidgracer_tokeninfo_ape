@@ -16,7 +16,7 @@ const useGetContract = () => {
                 
                 const abi = JSON.parse(data.result);
                 const temp = new web3.eth.Contract(abi, token);
-    
+                console.log("temp",temp);
                 setContract(temp);
                 setError(null);
             } catch (err) {

@@ -4,6 +4,7 @@ module.exports = {
   BNBTokenAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
   BUSDTokenAddress: "0xe9e7cea3dedca5984780bafc599bd69add087d56",
   USDTTokenAddress: "0x55d398326f99059ff775485246999027b3197955",
+  CAKETokenAddress: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
 
   // LP Staking Address
   LPAddressV1: "0xb6ec86562e0cd125b4a1586036b6f13d47fd09b6",
@@ -23,7 +24,7 @@ module.exports = {
 
   BNBPriceURL:
     "https://api.bscscan.com/api?module=stats&action=bnbprice&apikey=NWMV6N218S7DTUX1XJ61FB5KZRNPRXMQHY",
-
+  
   axios_link: "https://graphql.bitquery.io",
   axios_bitquery_header : {
     headers: {
@@ -31,4 +32,8 @@ module.exports = {
         'X-API-KEY': 'BQYH1avkjKkPZFYKru9VSb71fBnLdz05',
     }
   },
+  test_header:{
+    mode: 'no-cors', // this is to prevent browser from sending 'OPTIONS' method request first
+    method: 'GET',
+  }
 };

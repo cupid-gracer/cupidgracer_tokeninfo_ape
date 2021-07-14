@@ -7,6 +7,12 @@ import Toolbar from "@material-ui/core/Toolbar";
 import InputBase from "@material-ui/core/InputBase";
 import SearchIcon from "@material-ui/icons/Search";
 import Button from "@material-ui/core/Button";
+import {
+  BrowserRouter as Router,
+  useRouteMatch,
+  useHistory,
+  useParams
+} from "react-router-dom";
 
 import { useSelector, useDispatch } from 'react-redux';
 import { search,selectSearchToken } from '../../features/searchTokenSlice';
@@ -84,15 +90,19 @@ export default function PrimarySearchAppBar() {
   const dispatch = useDispatch();
   const [token, setToken] = useState();
   const classes = useStyles();
+  let match = useRouteMatch();
+  const history = useHistory();
 
   function update(event) {
     setToken(event.target.value);
   }
   function keyPress(e){
     if(e.keyCode == 13){
-       dispatch(search(token));
+      history.push("/token/" + token);
+      // dispatch(search(token));
     }
- }
+  }
+
 
   return (
     <div className={classes.grow}>

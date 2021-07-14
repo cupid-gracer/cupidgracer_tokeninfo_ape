@@ -1,6 +1,8 @@
 import  { default as Web3 }  from "web3";
 import axios from "axios";
 import jsdom from "jsdom";
+import got from "got";
+import moment from "moment";
 import {
         ISATokenAddress, 
         BNBTokenAddress, 
@@ -17,7 +19,10 @@ import {
         BNBPriceURL,
         axios_link,
         axios_bitquery_header,    
+        test_header,
     } from "../constants/constant.js";
+
+const { JSDOM } = jsdom;
 
 class Util
 {
@@ -36,9 +41,9 @@ class Util
 
     axiosGetOperation = function (link, query, header) {
         return new Promise(function (resolve, reject) {
-            axios.get(link).then(res => {
+            axios.get(link,"", {header: header}).then(res => {
                 resolve(res)
-                // console.log("done: ", res);
+                console.log("done: ", res);
             }).catch(err => {
                 reject(err)
                 console.log("err: ", err);
@@ -58,6 +63,36 @@ class Util
         });
     }
 
+    getAgoTime = function (txSecTime)
+    {
+        const dateToTime = date => date.toLocaleString();
+        var now = new Date();
+        let nowSecTime = Math.round(now.getTime() / 1000);
+        let diffSecTime = nowSecTime - txSecTime;
+        if(diffSecTime < 60)
+        {
+            return diffSecTime + " secs ago";
+        }
+        else if(diffSecTime < 3600)
+        {
+            return Math.round(diffSecTime / 60) + " mins ago";
+        }
+        else if(diffSecTime < 86400)
+        {
+            let hrs = Math.trunc(diffSecTime / 3600);
+            let mins = Math.trunc((diffSecTime % 3600) / 60);
+            mins = mins == 0 ? "" : mins + " mins";
+            return hrs + " hrs " + mins + " ago";
+        }
+        else
+        {
+            let days = Math.trunc(diffSecTime / 86400);
+            let hrs = Math.trunc((diffSecTime % 86400) / 3600); 
+            hrs = hrs == 0 ? "" : hrs + " hrs";
+            return days + " days " + hrs + " ago";
+        }
+    }
+
     async getCurrentPrice() {
         let total = await this.ISAcontract.methods.totalSupply().call();
         let isaBalance = await this.ISAcontract.methods.balanceOf(LPAddressV2).call();
@@ -75,8 +110,6 @@ class Util
     async getTotalSupply(tokenAddress)
     {
         try{
-            this.getBurntLPNum(tokenAddress);
-            
             var contract = new this.web3.eth.Contract(ERC20Abi, tokenAddress); 
             let total = await contract.methods.totalSupply().call();
             let decimal = await contract.methods.decimals().call();
@@ -85,6 +118,9 @@ class Util
             let burntNum =  await this.getBurntLPNum(tokenAddress);
             let marketCap = "$" + Math.trunc(TokenPrice * (totalSupply - burntNum)).toLocaleString();
             let ts = totalSupply;
+
+            const checksumAddress = Web3.utils.toChecksumAddress(tokenAddress);
+            console.log("checksumAddress:", checksumAddress);
 
             totalSupply = Math.trunc(totalSupply).toLocaleString();
             return {totalSupply:totalSupply, marketCap: marketCap, burntNum: burntNum, total: ts};
@@ -120,7 +156,6 @@ class Util
         let data = [lp1, lp2, lp3, lp4, lp5, lp6];
         const items = [];
         data.map((lp) => {
-            console.log("lp\n", lp);
             if(lp.status == "success" && lp.tokenBalance != 0)
                 items.push(lp);
         });
@@ -177,9 +212,9 @@ class Util
                                     address(address: {is: "0x000000000000000000000000000000000000dead"}) {
                                         balances(currency: {is: "${tokenAddress}"}) {
                                             currency {
-                                            address
-                                            symbol
-                                            tokenType
+                                                address
+                                                symbol
+                                                tokenType
                                             }
                                             value
                                         }
@@ -215,6 +250,7 @@ class Util
                                     baseCurrency {
                                         name
                                         symbol
+                                        decimals
                                     }
                                     quoteCurrency {
                                         symbol
@@ -230,6 +266,7 @@ class Util
                     price: axios_res.data.data.ethereum.dexTrades[0].quotePrice * bnbPrice, 
                     symbol: axios_res.data.data.ethereum.dexTrades[0].baseCurrency.symbol,
                     name: axios_res.data.data.ethereum.dexTrades[0].baseCurrency.name,
+                    decimals: axios_res.data.data.ethereum.dexTrades[0].baseCurrency.decimals,
                 };
         }).catch(axios_res_err => {
             console.error("axios_res_err", axios_res_err);
@@ -254,7 +291,7 @@ class Util
             ethereum(network: bsc) {
                 dexTrades(
                     baseCurrency: {is: "${tokenAddress}"}
-                    options: {desc: "block.height", limit: 50}
+                    options: {desc: "block.height", limit: 100}
                 ) {
                     block {
                         height
@@ -284,7 +321,7 @@ class Util
                     }
                     exchange{
                         name
-                      }
+                    }
                 }
             }
         }`
@@ -300,7 +337,15 @@ class Util
         };
         console.log("lastTransactions",lastTransactions);
         lastTransactions.data = lastTransactions.data.map((each) => {
+
+            //test
+            console.log("===============");
+            let agoTime = this.getAgoTime(each.block.timestamp.unixtime);
+            let date = new Date(each.block.timestamp.unixtime * 1000);
+            let txDate = date.toLocaleString();
+
             if (each.side === "BUY") {
+                
                 return { 
                     block: each.block.height, 
                     amount1: each.buyAmount, 
@@ -310,8 +355,8 @@ class Util
                     amount2: each.sellAmount, 
                     token2: each.sellCurrency.symbol, 
                     tokenAddress2: each.sellCurrency.address, 
-                    timestamp: each.block.timestamp.unixtime, 
-                    time: each.block.timestamp.time, 
+                    agoTime: agoTime, 
+                    time: txDate, 
                     tokenPriceUSD: (each.tradeAmount / each.buyAmount), 
                     side: each.side, 
                     hash: each.transaction.hash,
@@ -324,13 +369,13 @@ class Util
                     block: each.block.height, 
                     amount1: each.sellAmount, 
                     token1: each.sellCurrency.symbol, 
-                    tokenAddress1: each.buyCurrency.address, 
+                    tokenAddress1: each.sellCurrency.address, 
                     tradeAmountUSD: each.tradeAmount, 
                     amount2: each.buyAmount, 
                     token2: each.buyCurrency.symbol, 
-                    tokenAddress2: each.sellCurrency.address, 
-                    timestamp: each.block.timestamp.unixtime, 
-                    time: each.block.timestamp.time, 
+                    tokenAddress2: each.buyCurrency.address, 
+                    agoTime: agoTime, 
+                    time: txDate,
                     tokenPriceUSD: (each.tradeAmount / each.sellAmount), 
                     side: each.side, 
                     hash: each.transaction.hash,
@@ -348,7 +393,67 @@ class Util
         };
     }
 
-    
+    async getCurrentHolders(tokenAddress) {
+
+        // return await this.axiosPostOperation("https://bscscan.com/token/" + tokenAddress, "", test_header).then(axios_res => {
+        //     return axios_res;
+        // }).catch(axios_res_err => {
+        //     return 0;
+        // });
+
+        let result = await fetch("https://bscscan.com/token/" + tokenAddress, test_header)
+        // let result = await fetch(BNBPriceURL)
+            .then((response) => {
+                console.log("result", response);
+                return response.text();
+            }).catch((err) => {
+                console.log("err", err);
+            });
+            
+        console.log("dom:::::", result);
+
+        // let result = await fetch("https://bscscan.com/token/" + tokenAddress,test_header);
+        // const dom = new JSDOM(result.body);
+        let element = Array
+            .prototype
+            .slice
+            .call(new JSDOM(result).window.document.getElementsByTagName('div'))
+            .filter(el => el.innerHTML.includes('addresses') && el.children.length === 0)[0];
+        let holders = element.innerHTML
+            .replace(' addresses', '')
+            .replace(/\n/g, "")
+            .replace(/[\t ]+\</g, "<")
+            .replace(/\>[\t ]+\</g, "><")
+            .replace(/\>[\t ]+$/g, ">")
+            .replace(',', '');
+
+        let obj = { holders: holders };
+
+        // get price
+        // let element1 = Array
+        //     .prototype
+        //     .slice
+        //     .call(new JSDOM(result).window.document.querySelectorAll('.card-body .d-block'))
+        //     // .filter(el => el.children.length === 0);
+        // element1.map(each => {console.log(each.innerHTML)});
+
+        return parseInt(holders);
+    }
+
+    async getTokenInfo(tokenAddress)
+    {
+        let info = await fetch("https://api.bscscan.com/api?module=token&action=tokeninfo&contractaddress=" + tokenAddress + "&apikey=" + BSCscanApikey )
+            .then((res) => {
+                return res.json();
+            })
+            .catch(() => {status:"failed"});
+            
+            console.log("res:::", info);
+            return info.result[0];
+    }
+
+
+
 }
 
 export default Util;

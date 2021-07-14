@@ -43,6 +43,7 @@ function TokenInfo(props){
   const tokenAddress = useSelector(selectSearchToken);
   const [totalSupply, setTotalSupply] = useState({});
   const [tokenInfo, setTokenInfo] = useState({totalSupply:"", total:"", burntNum:"", marketCap:"" });
+  const [info, setInfo] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -51,9 +52,11 @@ function TokenInfo(props){
         NotificationManager.warning('The token address is invalid. Please input correct!');
         return;
       } 
+      const info = await util.getTokenInfo(tokenAddress);
+      console.log("info", info);
       let data = await util.getTotalSupply(tokenAddress);
       setTotalSupply(data);
-      
+      setInfo(info);
     })();
   },[tokenAddress]);
   
@@ -100,9 +103,20 @@ function TokenInfo(props){
             <MarketCap util = {util} token = {tokenAddress} totalSupply = {totalSupply.total} burntNum = {totalSupply.burntNum} price = {totalSupply.marketCap}/>
           }
           <Box m={1} />
+          <Grid>Token Type:  {info.tokenType}</Grid>
+          {info.website == ""? "" :
+          <div>
+          <Box m={1} />
+          <a href={info.website} target="_blank"> {tokenInfo.name} Website</a>
+          </div>
+          }
+          <Box m={1} />
+          <Grid>Token Decimals:  {info.divisor}</Grid>
+          <Box m={1} />
           <a href={`https://bscscan.com/token/${tokenAddress}#balances`} target="_blank"> View holders on BacScan</a>
           <Box m={.5} />
           <a href={`https://bscscan.com/token/${tokenAddress}`} target="_blank"> View Tx on BscScan</a>
+          <Box m={1} />
           
           <LpHolding  util = {util} token = {tokenAddress}/>
 
