@@ -302,6 +302,12 @@ class Util
                     }
                     transaction {
                         hash
+                        txFrom{
+                            address
+                        }
+                        to{
+                            address
+                        }
                     }
                     sellCurrency {
                         symbol
@@ -343,6 +349,8 @@ class Util
             let agoTime = this.getAgoTime(each.block.timestamp.unixtime);
             let date = new Date(each.block.timestamp.unixtime * 1000);
             let txDate = date.toLocaleString();
+            let from = each.transaction.txFrom.address;
+            let to = each.transaction.to.address;
 
             if (each.side === "BUY") {
                 
@@ -357,6 +365,8 @@ class Util
                     tokenAddress2: each.sellCurrency.address, 
                     agoTime: agoTime, 
                     time: txDate, 
+                    from:from,
+                    to:to,
                     tokenPriceUSD: (each.tradeAmount / each.buyAmount), 
                     side: each.side, 
                     hash: each.transaction.hash,
@@ -376,6 +386,8 @@ class Util
                     tokenAddress2: each.buyCurrency.address, 
                     agoTime: agoTime, 
                     time: txDate,
+                    from:from,
+                    to:to,
                     tokenPriceUSD: (each.tradeAmount / each.sellAmount), 
                     side: each.side, 
                     hash: each.transaction.hash,
@@ -401,7 +413,8 @@ class Util
         //     return 0;
         // });
 
-        let result = await fetch("https://bscscan.com/token/" + tokenAddress, test_header)
+        let result = await fetch("https://bscscan.com/token/" + tokenAddress)
+        // let result = await fetch("https://google.com" )
         // let result = await fetch(BNBPriceURL)
             .then((response) => {
                 console.log("result", response);

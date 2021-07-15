@@ -52,6 +52,9 @@ function TokenInfo(props){
         NotificationManager.warning('The token address is invalid. Please input correct!');
         return;
       } 
+      // const holders = await util.getCurrentHolders(tokenAddress);
+      // console.log("holders", holders);
+
       const info = await util.getTokenInfo(tokenAddress);
       console.log("info", info);
       let data = await util.getTotalSupply(tokenAddress);

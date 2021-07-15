@@ -34,6 +34,8 @@ module.exports = {
   },
   test_header:{
     mode: 'no-cors', // this is to prevent browser from sending 'OPTIONS' method request first
+    dest: 'document',
     method: 'GET',
+    credentials: "same-origin",
   }
 };
