@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid } from "@material-ui/core";
+import { Row } from "react-bootstrap";
 
 function MarketCap(props) {
   const util = props.util;
@@ -29,11 +29,10 @@ function MarketCap(props) {
 
   return (
     <div>
-      <Box textAlign="justify">
-        Market Cap:(Includes locked, excludes burned)
-      </Box>
-      <Box m={1} />
-      <Grid style={{ color: "green" }}>{price === undefined || price.includes('N')   ? "" : mc}</Grid>
+      <Row style={{marginTop:"10px"}}>
+        Market Cap :  (Includes locked, excludes burned)
+      </Row>
+      <Row style={{ color: "green" }}>{price === undefined || price.includes('N')   ? "" : mc}</Row>
     </div>
   );
 }

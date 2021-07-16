@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import axios from "axios";
 import Web3 from 'web3';
 import { BSCscanApikey, } from "../constants/constant.js";

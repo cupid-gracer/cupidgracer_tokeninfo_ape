@@ -1,56 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { Grid, makeStyles } from "@material-ui/core";
-import Container from "@material-ui/core/Container";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { Container, Row, Col } from "react-bootstrap";
 import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useRouteMatch,
-  useParams
-} from "react-router-dom";
+  NotificationContainer,
+  NotificationManager,
+} from "react-notifications";
 
-import { useSelector, useDispatch } from 'react-redux';
-import { search,selectSearchToken } from '../../features/searchTokenSlice';
+import { useDispatch } from "react-redux";
+import { search } from "../../features/searchTokenSlice";
 
 import TokenInfo from "./TokenInfo";
 import TradingView from "./TradingView";
 import TransactionList from "./TransactionList";
 import Util from "../../util/util";
+import 'react-notifications/lib/notifications.css';
 import "../../App.css";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: "center",
-    color: theme.palette.text.secondary,
-  }
-}));
 
 const util = new Util();
 
 function Dashboard() {
-  const classes = useStyles();
   let { tokenAddress } = useParams();
   const dispatch = useDispatch();
-  dispatch(search(tokenAddress));
+  const [isValid, setIsValid] = useState();
 
-  return (
-    <Container style={{marginTop:8}}>
-      <Grid  className = "dashboard" container spacing={2}>
-        <Grid item xs = {12} md = {4}>
-          <TokenInfo util={util}/>
-        </Grid>
-        <Grid className = "dashboard" item xs = {12} md = {8}>
+  useEffect(() => {
+    (async () => {
+      const isAddressValid = await util.checkAddress(tokenAddress);
+      if (!isAddressValid) {
+        NotificationManager.warning(
+          "The token address is invalid. Please input correct!"
+        );
+        setIsValid(false);
+      } else {
+        dispatch(search(tokenAddress));
+        setIsValid(true);
+      }
+    })();
+  }, [tokenAddress]);
+
+  return isValid === undefined || !isValid ? (
+    <div>
+      <NotificationContainer />
+    </div>
+  ) : (
+    <Container style={{ marginTop: 8 }}>
+      <Row className="dashboard" spacing={2}>
+        <Col xs={12} md={4}>
+          <TokenInfo util={util} />
+        </Col>
+        <Col xs={12} md={8} style={{padding:"0px"}}>
           <TradingView />
-        </Grid>
-        <Grid className = "dashboard" item xs = {12} style={{marginBottom:10}} >
-          <TransactionList  util={util}/>
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
+      <Row className="dashboard" style={{ marginTop: 10 }}>
+        <Col xs={12} style={{ marginBottom: 10 }}>
+          <TransactionList util={util} />
+        </Col>
+      </Row>
+      <NotificationContainer />
     </Container>
   );
 }

@@ -1,44 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectSearchToken } from '../../features/searchTokenSlice';
-import { selectTokenPair, change } from '../../features/tokenPairSlice';
-import { Box, Grid, makeStyles , Typography } from "@material-ui/core";
+import { change } from '../../features/tokenPairSlice';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
-import testImg from "../../img/ape-logo.png";
+import { Container, Row, Col } from "react-bootstrap";
 import MarketCap from "../widgets/marketcap";
 import LpHolding from "../widgets/lpholding";
-import 'react-notifications/lib/notifications.css';
-  
-const useStyles = makeStyles((theme) => ({
-  tokenImg: {
-    marginLeft: "1vw",
-    width: "60px",
-    height: "60px",
-  },
-  tokenName: {
-    fontSize: 20,
-    textAlign:"center"
-  },
-  tokenPair: {
-    // marginLeft:50,
-    textAlign:"center",
-    fontSize: 13,
-  },
-  price:{
-    color:"green"
-  },
-  outLink:{
-    paddingLeft:"5px",
-    paddingRight:"5px",
-    color:"#11a0cc"
-  }
-}));
-
-
+import '../../App.css';
 
 function TokenInfo(props){
   const util = props.util;
-  const classes = useStyles();
   const dispatch = useDispatch();
   const tokenAddress = useSelector(selectSearchToken);
   const [totalSupply, setTotalSupply] = useState({});
@@ -79,51 +50,42 @@ function TokenInfo(props){
 
     return(
       <div>
-        <Grid container spacing={1}>
-          <Grid item xs={2}>
-            <img src={tokenInfo.symbol === undefined? `https://bscscan.com/images/main/empty-token.png` : `https://assets.coincap.io/assets/icons/${tokenInfo.symbol.toLowerCase()}@2x.png`} onError={addDefaultSrc} className={classes.tokenImg} alt="logo" />
-          </Grid>
-          <Grid item xs={10}>
-            <div className={classes.tokenName}>{tokenInfo.name === undefined? "" : tokenInfo.name + " - Prices"}</div>
-            <Grid
-              container
-              direction="column"
-              className={classes.tokenPair}
-              // justify="flex-start"
+        <Row spacing={1}>
+          <Col xs={2}>
+            <img src={tokenInfo.symbol === undefined? `https://bscscan.com/images/main/empty-token.png` : `https://assets.coincap.io/assets/icons/${tokenInfo.symbol.toLowerCase()}@2x.png`} onError={addDefaultSrc} className="tokenImg" alt="logo" />
+          </Col>
+          <Col xs={10}>
+            <div className="tokenName">{tokenInfo.name === undefined? "" : tokenInfo.name + " - Prices"}</div>
+            <Container
+              className="tokenPair"
+              justify="flex-start"
             >
-              <Grid item>{tokenInfo.symbol === undefined? "" : tokenInfo.symbol+"/BNB Pair"}</Grid>
-              <Grid item>{tokenInfo.symbol === undefined? "" :"BSC (BEP20)"}</Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Box m={1} />
+              <p style={{marginBottom:"0px"}}>{tokenInfo.symbol === undefined? "" : tokenInfo.symbol+"/BNB Pair"}</p>
+              <p>{tokenInfo.symbol === undefined? "" :"BSC (BEP20)"}</p>
+            </Container>
+          </Col>
+        </Row>
 
-        <Grid container direction="column" alignItems="flex-start">
-          <Grid>Total Supply:</Grid>
-          <Grid>{totalSupply.totalSupply}</Grid>
-          <Box m={1} />
+        <Container style={{padding:"0px"}}>
+          <Row>Total Supply :</Row>
+          <Row>{totalSupply.totalSupply}</Row>
           {totalSupply.total === undefined? "":
             <MarketCap util = {util} token = {tokenAddress} totalSupply = {totalSupply.total} burntNum = {totalSupply.burntNum} price = {totalSupply.marketCap}/>
           }
-          <Box m={1} />
-          <Grid>Token Type:  {info.tokenType}</Grid>
-          {info.website == ""? "" :
-          <div>
-          <Box m={1} />
-          <a href={info.website} target="_blank"> {tokenInfo.name} Website</a>
-          </div>
-          }
-          <Box m={1} />
-          <Grid>Token Decimals:  {info.divisor}</Grid>
-          <Box m={1} />
-          <a href={`https://bscscan.com/token/${tokenAddress}#balances`} target="_blank"> View holders on BacScan</a>
-          <Box m={.5} />
-          <a href={`https://bscscan.com/token/${tokenAddress}`} target="_blank"> View Tx on BscScan</a>
-          <Box m={1} />
-          
-          <LpHolding  util = {util} token = {tokenAddress}/>
+          <Row style={{marginTop:"10px"}}>Token Type:  {info.tokenType}</Row>
+            {info.website == ""? "" :
+              <Row style={{marginTop:"10px"}}>
+                <a href={info.website} target="_blank" style={{padding:"0px"}}> {tokenInfo.name} Website</a>
+              </Row>
+            }
+          <Row style={{marginTop:"10px"}}>Token Decimals:  {info.divisor}</Row>
+          <Row style={{marginTop:"10px"}}><a href={`https://bscscan.com/token/${tokenAddress}#balances`} style={{padding:"0px"}} target="_blank"> View holders on BacScan</a></Row>
+          <Row style={{marginTop:"10px", marginBottom:"10px"}}><a href={`https://bscscan.com/token/${tokenAddress}`} style={{padding:"0px"}} target="_blank"> View Tx on BscScan</a></Row>
+          <Row style={{marginTop:"10px"}}>
+            <LpHolding  util = {util} token = {tokenAddress}/>
+          </Row>
 
-        </Grid>
+        </Container>
         <NotificationContainer/>
       </div>
     );
