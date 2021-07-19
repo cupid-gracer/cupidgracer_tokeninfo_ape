@@ -68,7 +68,7 @@ function TokenInfo(props){
 
         <Container style={{padding:"0px"}}>
           <Row>Total Supply :</Row>
-          <Row>{totalSupply.totalSupply}</Row>
+          <Row>{totalSupply.totalSupply === undefined? "" : totalSupply.totalSupply}</Row>
           {totalSupply.total === undefined? "":
             <MarketCap util = {util} token = {tokenAddress} totalSupply = {totalSupply.total} burntNum = {totalSupply.burntNum} price = {totalSupply.marketCap}/>
           }
