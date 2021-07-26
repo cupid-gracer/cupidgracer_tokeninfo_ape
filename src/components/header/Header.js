@@ -13,7 +13,6 @@ import { useHistory } from "react-router-dom";
 export default function PrimarySearchAppBar() {
   const [token, setToken] = useState();
   const history = useHistory();
-
   function update(event) {
     setToken(event.target.value);
   }

@@ -14,6 +14,7 @@ function MarketCap(props) {
     const dd = setInterval(() => {
       (async () => {
         const isAddressValid = await util.checkAddress(tokenAddress);
+        
         if(!isAddressValid) return;
         const data = await util.getMarketCap(
           totalSupply,

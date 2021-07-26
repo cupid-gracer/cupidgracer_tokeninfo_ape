@@ -20,6 +20,9 @@ import {
         axios_link,
         axios_bitquery_header,    
         test_header,
+        CMCApikey,
+        CMC_header,
+        apeAPI,
     } from "../constants/constant.js";
 
 const { JSDOM } = jsdom;
@@ -39,9 +42,9 @@ class Util
         this.PFV2 = new this.web3.eth.Contract(PancakeFactoryAbi, PancakeFactoryV2);
     }
 
-    axiosGetOperation = function (link, query, header) {
+    axiosGetOperation = function (link, header = "") {
         return new Promise(function (resolve, reject) {
-            axios.get(link,"", {header: header}).then(res => {
+            axios.get(link, {headers: header}).then(res => {
                 resolve(res)
                 console.log("done: ", res);
             }).catch(err => {
@@ -291,7 +294,7 @@ class Util
             ethereum(network: bsc) {
                 dexTrades(
                     baseCurrency: {is: "${tokenAddress}"}
-                    options: {desc: "block.height", limit: 100}
+                    options: {desc: "block.height", limit: 50}
                 ) {
                     block {
                         height
@@ -341,11 +344,9 @@ class Util
             'message': "failed get last 50 transactions.",
             "error": lastTransactions.err
         };
-        console.log("lastTransactions",lastTransactions);
         lastTransactions.data = lastTransactions.data.map((each) => {
 
             //test
-            console.log("===============");
             let agoTime = this.getAgoTime(each.block.timestamp.unixtime);
             let date = new Date(each.block.timestamp.unixtime * 1000);
             let txDate = date.toLocaleString();
@@ -465,6 +466,12 @@ class Util
             return info.result[0];
     }
 
+    async getCryptoCurrencyInfo(symbol_or_address)
+    {
+        let data = await this.axiosGetOperation(apeAPI + "/getCryptoCurrencyInfo?symbol_or_address=" + symbol_or_address);
+        let info = data.data.data;
+        return info;
+    }
 
 
 }

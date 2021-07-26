@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { Spinner } from "react-bootstrap";
 import "../../App.css";
 
 function LpHolding(props) {
   const util = props.util;
   const tokenAddress = props.token;
   const [lpTokens, setLPTokens] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     const dd = setInterval(() => {
       (async () => {
         const isAddressValid = await util.checkAddress(tokenAddress);
         if (!isAddressValid) return;
         const data = await util.getLPTokenList(tokenAddress);
         setLPTokens(data);
+        setLoading(false);
       })();
     }, 10000);
     return () => clearInterval(dd);
@@ -54,8 +58,12 @@ function LpHolding(props) {
     </div>
   ));
 
-  return (
-      <div className="scrollBox">{listItems}</div>
+  return loading ? (
+    <div style={{ textAlign: "center" }}>
+      <Spinner animation="border" variant="warning" />
+    </div>
+  ) : (
+    <div className="scrollBox">{listItems}</div>
   );
 }
 

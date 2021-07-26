@@ -30,17 +30,16 @@ function Dashboard() {
         NotificationManager.warning(
           "The token address is invalid. Please input correct!"
         );
-        setIsValid(false);
+      setIsValid(false);
       } else {
         dispatch(search(tokenAddress));
-        setIsValid(true);
+      setIsValid(true);
       }
     })();
   }, [tokenAddress]);
 
   return isValid === undefined || !isValid ? (
     <div>
-      <NotificationContainer />
     </div>
   ) : (
     <Container style={{ marginTop: 8 }}>
@@ -48,7 +47,7 @@ function Dashboard() {
         <Col xs={12} md={4}>
           <TokenInfo util={util} />
         </Col>
-        <Col xs={12} md={8} style={{padding:"0px"}}>
+        <Col xs={12} md={8} style={{padding:"0px", height:"500px"}}>
           <TradingView />
         </Col>
       </Row>
@@ -57,7 +56,6 @@ function Dashboard() {
           <TransactionList util={util} />
         </Col>
       </Row>
-      <NotificationContainer />
     </Container>
   );
 }

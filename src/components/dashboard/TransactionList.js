@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Web3 from "web3";
 import {
@@ -8,6 +8,7 @@ import {
   Col,
   Tooltip,
   OverlayTrigger,
+  Spinner,
 } from "react-bootstrap";
 
 import { selectTokenPair } from "../../features/tokenPairSlice";
@@ -55,17 +56,16 @@ function tokenRender(basicToken, renderToken) {
   return (
     <div>
       <OverlayTrigger
-        key="top"
         placement="top"
         overlay={<Tooltip id="tooltip-top">{renderToken}</Tooltip>}
       >
-        <a
-          target="_blank"
-          href={`https://bscscan.com/token/${basicToken}?a=${renderToken}`}
-          style={{ color: "rgb(62 184 255)", textDecoration: "none" }}
-        >
-          {renderToken.substring(0, 20)}...
-        </a>
+          <a
+            target="_blank"
+            href={`https://bscscan.com/token/${basicToken}?a=${renderToken}`}
+            style={{ color: "rgb(62 184 255)", textDecoration: "none" }}
+          >
+            {renderToken.substring(0, 20)}...
+          </a>
       </OverlayTrigger>
     </div>
   );
@@ -74,7 +74,7 @@ function tokenRender(basicToken, renderToken) {
 function TransactionList(props) {
   const util = props.util;
   const tokenAddress = useSelector(selectSearchToken);
-
+  const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
   const [trxHashes, setTrxHashes] = useState([]);
   const { contract, getContract } = useGetContract();
@@ -82,7 +82,6 @@ function TransactionList(props) {
   let tokenPriceList = [];
 
   let txRows = [];
-  // createData('sell', createCell(3.2546, "BTC"), createCell("$18.55", "17.155497 BUSD"), createCell("$46.15", "PcancakeSwap"), createCell("6:15:54", "AM"), createCell("0xc95c", "Track")),
 
   useEffect(() => {
     if (contract === undefined) return;
@@ -105,23 +104,7 @@ function TransactionList(props) {
   }, []);
 
   useEffect(() => {
-    function getTime(time) {
-      const timeArray = time.toString().split(":");
-      if (Number(timeArray[0]) > 12) {
-        timeArray[0] = (Number(timeArray[0]) % 12).toString();
-      }
-      return timeArray.join(":");
-    }
-
-    function getAMPM(time) {
-      const timeArray = time.toString().split(":");
-      let ampm = "AM";
-      if (Number(timeArray[0]) > 12) {
-        ampm = "PM";
-      }
-      return ampm;
-    }
-
+    setLoading(true);
     async function getTokenPrice(tokenAddress) {
       let pricetoken = 0;
       tokenPriceList.map((item) => {
@@ -184,9 +167,14 @@ function TransactionList(props) {
         getContract(tokenAddress);
       }
     })();
+    setLoading(false);
   }, [tokenAddress]);
 
-  return (
+  return loading ? (
+    <div style={{ textAlign: "center" }}>
+      <Spinner animation="border" variant="danger" />
+    </div>
+  ) : (
     <div
       style={{
         maxHeight: "450px",
