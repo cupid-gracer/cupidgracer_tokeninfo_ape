@@ -31,10 +31,10 @@ function MarketCap(props) {
 
   return (
     <div>
-      <Row style={{marginTop:"10px"}}>
+      <p className="fw-bold m-0">
         Market Cap :  (Includes locked, excludes burned)
-      </Row>
-      <Row style={{ color: "green" }}>{ price.includes('N') ? "" : mc}</Row>
+      </p>
+      <p style={{ color: "green", textAlign:"end" }}>{ price.includes('N') ? "" : mc}</p>
     </div>
   );
 }

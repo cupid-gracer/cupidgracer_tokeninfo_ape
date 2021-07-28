@@ -13,7 +13,7 @@ import TokenInfo from "./TokenInfo";
 import TradingView from "./TradingView";
 import TransactionList from "./TransactionList";
 import Util from "../../util/util";
-import 'react-notifications/lib/notifications.css';
+import "react-notifications/lib/notifications.css";
 import "../../App.css";
 
 const util = new Util();
@@ -30,30 +30,29 @@ function Dashboard() {
         NotificationManager.warning(
           "The token address is invalid. Please input correct!"
         );
-      setIsValid(false);
+        setIsValid(false);
       } else {
         dispatch(search(tokenAddress));
-      setIsValid(true);
+        setIsValid(true);
       }
     })();
   }, [tokenAddress]);
 
   return isValid === undefined || !isValid ? (
-    <div>
-    </div>
+    <div></div>
   ) : (
-    <Container style={{ marginTop: 8 }}>
-      <Row className="dashboard" spacing={2}>
-        <Col xs={12} md={4}>
+    <Container className="my-md-4">
+      <Row>
+        <Col xs={12} md={3}>
           <TokenInfo util={util} />
         </Col>
-        <Col xs={12} md={8} style={{padding:"0px", height:"500px"}}>
-          <TradingView />
-        </Col>
-      </Row>
-      <Row className="dashboard" style={{ marginTop: 10 }}>
-        <Col xs={12} style={{ marginBottom: 10 }}>
-          <TransactionList util={util} />
+        <Col className="ps-4" xs={12} md={9}>
+          <div className="mb-5">
+            <TradingView />
+          </div>
+          <div>
+            <TransactionList util={util} />
+          </div>
         </Col>
       </Row>
     </Container>

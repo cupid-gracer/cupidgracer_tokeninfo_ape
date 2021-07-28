@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { selectSearchToken } from "../../features/searchTokenSlice";
 import { change } from "../../features/tokenPairSlice";
 import {
-    NotificationContainer,
-    NotificationManager,
+  NotificationContainer,
+  NotificationManager,
 } from "react-notifications";
 import { Container, Row, Col } from "react-bootstrap";
 import MarketCap from "../widgets/marketcap";
@@ -33,10 +33,11 @@ function TokenInfo(props) {
       if (!isAddressValid) {
         NotificationManager.warning(
           "The token address is invalid. Please input correct!"
-          );
-          return;
-        }
-        let _cmcInfo = await util.getCryptoCurrencyInfo(tokenAddress);
+        );
+        return;
+      }
+      let _cmcInfo = await util.getCryptoCurrencyInfo(tokenAddress);
+      console.log("_cmcInfo", _cmcInfo);
       // const holders = await util.getCurrentHolders(tokenAddress);
       // console.log("holders", holders);
 
@@ -45,7 +46,7 @@ function TokenInfo(props) {
       let data = await util.getTotalSupply(tokenAddress);
       setTotalSupply(data);
       setInfo(info);
-      if( _cmcInfo == 0 ) _cmcInfo = {};
+      if (_cmcInfo == 0) _cmcInfo = {};
       setCMCInfo(_cmcInfo);
     })();
   }, [tokenAddress]);
@@ -60,24 +61,22 @@ function TokenInfo(props) {
     })();
   }, [totalSupply]);
 
-
-
   return totalSupply === undefined ? (
     <div></div>
   ) : (
     <div>
       <TokenPrice
-        util = {util}
-        tokenAddress = {tokenAddress}
-        tokenInfo = {info}
-        tokenLogo = {CMCInfo.logo}
+        util={util}
+        tokenAddress={tokenAddress}
+        tokenInfo={info}
+        tokenLogo={CMCInfo.logo}
       />
 
-      <Container style={{ padding: "0px" }}>
-        <Row>Total Supply :</Row>
-        <Row>
+      <Container className="mt-md__custom rounded tokenprice">
+        <p className="fw-bold m-0">Total supply:</p>
+        <p style={{ textAlign: "end" }}>
           {totalSupply.totalSupply === undefined ? "" : totalSupply.totalSupply}
-        </Row>
+        </p>
         {totalSupply.total === undefined ? (
           ""
         ) : (
@@ -89,42 +88,52 @@ function TokenInfo(props) {
             price={totalSupply.marketCap}
           />
         )}
-        <Row style={{ marginTop: "10px" }}>Token Type: {info.tokenType}</Row>
-        <SocialList tokenInfo = {info} tokenAddress = {tokenAddress}/>
-        {
-        CMCInfo.twitter_username != undefined ? 
-        <Row style={{ marginTop: "10px", display:"inline-flex"}}>
-          <p style={{padding:"0px", margin:"0px"}}>Twitter User Name:</p> 
-          <p style={{color:"yellow", padding:"0px", marginRight:"20px", textAlign:"end"}}>@{CMCInfo.twitter_username}</p>
-        </Row>
-        :
-        ""
-        }
+        <p className="m-0 fw-bold">Token Type:</p>
+        <p style={{ textAlign: "end" }}>
+          <span className="badge rounded-pill bg-light text-dark">
+            {info.tokenType}
+          </span>
+        </p>
 
-        <Row style={{ marginTop: "10px" }}>Token Decimals: {info.divisor}</Row>
-        <Row style={{ marginTop: "10px" }}>
+        <SocialList tokenInfo={info} tokenAddress={tokenAddress} />
+        {CMCInfo.twitter_username != undefined ? (
+          <div>
+            <p className="fw-bold m-0">Twitter User Name:</p>
+            <p style={{ textAlign: "end" }}>@{CMCInfo.twitter_username}</p>
+          </div>
+        ) : (
+          ""
+        )}
+
+        <p className="fw-bold m-0">Token Decimals:</p>
+        <p style={{ textAlign: "end" }}>
+          <span className="badge rounded-pill bg-light text-dark">
+            {info.divisor}
+          </span>
+        </p>
+        <div className="mt-4">
           <a
             href={`https://bscscan.com/token/${tokenAddress}#balances`}
-            style={{ padding: "0px" }}
             target="_blank"
+            rel="noreferrer"
           >
             {" "}
-            View holders on BacScan
+            View holders on BscScan
           </a>
-        </Row>
-        <Row style={{ marginTop: "10px", marginBottom: "10px" }}>
+        </div>
+        <div className="my-4">
           <a
             href={`https://bscscan.com/token/${tokenAddress}`}
-            style={{ padding: "0px" }}
             target="_blank"
+            rel="noreferrer"
           >
             {" "}
             View Tx on BscScan
           </a>
-        </Row>
-        <Row style={{ marginTop: "10px" }}>
+        </div>
+        <div className="mt-4">
           <LpHolding util={util} token={tokenAddress} />
-        </Row>
+        </div>
       </Container>
       <NotificationContainer />
     </div>

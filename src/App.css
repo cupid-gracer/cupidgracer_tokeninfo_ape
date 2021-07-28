@@ -90,6 +90,21 @@ body {
   color: coral;
 }
 
+.tokenprice {
+  background-color: #212529;
+  margin-bottom: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.tokenprice>.p{
+  margin: 0px !important;
+}
+
+.tradingview-bg{
+  background-color: #212529 !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

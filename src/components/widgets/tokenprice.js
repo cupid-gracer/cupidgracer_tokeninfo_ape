@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import "../../App.css";
-
+import { CashCoin } from "react-bootstrap-icons";
 function addDefaultSrc(ev) {
-  ev.target.src = "https://bscscan.com/images/main/empty-token.png";
+  ev.target.src = "😞";
 }
 
 function TokenPrice(props) {
@@ -19,10 +19,10 @@ function TokenPrice(props) {
         const info = await util.getTokenInfo(tokenAddress);
         let tp = await util.getTokenPriceFromPancake(tokenAddress);
         document.title =
-        info.tokenName +
-          " Price Chart Scam or Legit? ($" +
+          info.tokenName +
+          " Price Chart — Scam or Legit? ($" +
           Math.round(tp * 10000) / 10000 +
-          ") - APE";
+          ") &mdash; APE";
         tp = Math.round(tp * 1000000000) / 1000000000;
         setTokenPrice(tp);
       })();
@@ -31,37 +31,45 @@ function TokenPrice(props) {
   }, [tokenAddress]);
 
   return (
-    <Row spacing={1}>
-      <Col xs={2}>
+    <Container className="rounded tokenprice">
+    <Row>
+      <Col xs={12} className="text-center mx-auto pe-md-4">
         <img
           src={
             tokenLogo === undefined
               ? `https://bscscan.com/images/main/empty-token.png`
               : tokenLogo
-              // : `https://assets.coincap.io/assets/icons/${tokenInfo.symbol.toLowerCase()}@2x.png`
+            // : `https://assets.coincap.io/assets/icons/${tokenInfo.symbol.toLowerCase()}@2x.png`
           }
           onError={addDefaultSrc}
-          className="tokenImg"
-          alt="logo"
+          className="tokenImg rounded-circle"
+          alt="token logo"
         />
-      </Col>
-      <Col xs={10}>
-        <div className="tokenName">
-          {tokenInfo.tokenName === undefined
-            ? ""
-            : tokenInfo.tokenName + " - Prices"}
-        </div>
+        <h2 className="tokenName my-3">
+          {tokenInfo.tokenName === undefined ? "" : tokenInfo.tokenName}
+        </h2>
         <Container className="tokenPair" justify="flex-start">
-          <p style={{ marginBottom: "0px", fontSize:"13px" }}>
-            {tokenInfo.symbol === undefined
-              ? ""
-              : tokenInfo.symbol + "/BNB Pair"}
+          <p className="mb-3 opacity-8 text-sm">
+            {tokenInfo.symbol === undefined ? "" : tokenInfo.symbol}
           </p>
-          <p style={{ marginBottom: "0px", color: "green", fontSize:"13px"  }}>{tokenPrice === undefined ? "" : "$" + tokenPrice}</p>
-          <p style={{ marginBottom: "0px", fontSize:"13px" }}>{tokenInfo.symbol === undefined ? "" : "BSC (BEP20)"}</p>
+
+          {tokenPrice === undefined ? (
+            ""
+          ) : (
+            <span className="btn btn-sm bg-white rounded-pill shadow  hover-zoom  hover-shadow  btn-icon mx-3 p-2 fw-bold">
+              {/* <i className="fa fa-light fa-viacoin me-2"></i>  */}
+              <CashCoin className="me-2"/>
+              ${tokenPrice}
+            </span>
+          )}
+          <div className="clearfix"></div>
+          <span className="mt-3 badge rounded-pill bg-light text-dark">
+            {tokenInfo.symbol === undefined ? "" : "BSC (BEP-20)"}
+          </span>
         </Container>
       </Col>
     </Row>
+    </Container>        
   );
 }
 

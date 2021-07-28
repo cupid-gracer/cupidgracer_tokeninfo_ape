@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 export const tokenPairSlice = createSlice({
   name: 'tokenPair',
   initialState: {
-    value: "ISA/BNB",
+    value: "SAFEMOON/BNB",
   },
   reducers: {
     change: (state, action) => {

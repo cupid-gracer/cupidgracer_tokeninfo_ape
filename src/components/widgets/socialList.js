@@ -9,20 +9,24 @@ import {
   Telegram,
   Linkedin,
   Discord,
-  File as Whitepaer,
+  ArrowRight,
+  FileEarmarkPdfFill,
   Pencil as Blog,
-  Mailbox,
+  Envelope,
   Coin,
   Chat,
+  BlockquoteLeft,
+  EnvelopeFill,
+  FileTextFill,
 } from "react-bootstrap-icons";
 import "../../App.css";
 
 function getLogo(type) {
   switch (type) {
     case "email":
-      return <Mailbox />;
+      return <EnvelopeFill />;
     case "blog":
-      return <Blog />;
+      return <FileTextFill />;
     case "reddit":
       return <Reddit />;
     case "slack":
@@ -40,7 +44,7 @@ function getLogo(type) {
     case "discord":
       return <Discord />;
     case "whitepaper":
-      return <Whitepaer />;
+      return <FileEarmarkPdfFill />;
     case "wechat":
       return <Chat />;
     case "bitcointalk":
@@ -62,15 +66,15 @@ function cellSocial(socialLink, type) {
         </Tooltip>
       }
     >
-        <a
-          // ref={ref}
-          className="socialItem"
-          href={type == "email" ? "mailto:" + socialLink : socialLink}
-          target="_blank"
-          style={{ marginRight: "5px", padding: "0px" }}
-        >
-          {getLogo(type)}
-        </a>
+      <a
+        // ref={ref}
+        className="socialItem"
+        href={type == "email" ? "mailto:" + socialLink : socialLink}
+        target="_blank"
+        style={{ marginRight: "5px", padding: "0px" }}
+      >
+        {getLogo(type)}
+      </a>
     </OverlayTrigger>
   );
 }
@@ -79,20 +83,23 @@ export default function SocialList(props) {
   const tokenInfo = props.tokenInfo;
 
   return (
-    <div style={{ marginTop: "10px" }}>
+    <div>
       {!tokenInfo.website ? (
         ""
       ) : (
-        <Row style={{ marginTop: "10px", display: "inline-block" }}>
-          <p style={{ padding: "0px", display: "contents" }}>Official Site:</p>
-          <a
-            href={tokenInfo.website}
-            target="_blank"
-            style={{ marginLeft: "20px" }}
-          >
-            {tokenInfo.website}
-          </a>
-        </Row>
+        <div>
+          <p className="fw-bold m-0">Official Site:</p>
+          <p className="mt-0" style={{ textAlign: "end" }}>
+            <a
+              href={tokenInfo.website}
+              target="_blank"
+              rel="noopener"
+            >
+              <i className="fa-light text-dark fa-browser me-2"></i>
+              {tokenInfo.website}
+            </a>
+          </p>
+        </div>
       )}
       {!tokenInfo.email &&
       !tokenInfo.blog &&
@@ -108,12 +115,9 @@ export default function SocialList(props) {
       !tokenInfo.discord ? (
         ""
       ) : (
-        <Row style={{ marginTop: "10px", display: "inline-block" }}>
-          <p style={{ padding: "0px", display: "contents" }}>
-            Social Profiles:
-          </p>
-
-          <Row style={{ marginLeft: "10px", display: "inline" }}>
+        <Row>
+          <p className="fw-bold m-0">Social Profiles:</p>
+          <p style={{textAlign:"end"}}>
             {cellSocial(tokenInfo.email, "email")}
             {cellSocial(tokenInfo.blog, "blog")}
             {cellSocial(tokenInfo.reddit, "reddit")}
@@ -126,7 +130,7 @@ export default function SocialList(props) {
             {cellSocial(tokenInfo.linkedin, "linkedin")}
             {cellSocial(tokenInfo.discord, "discord")}
             {cellSocial(tokenInfo.whitepaper, "whitepaper")}
-          </Row>
+          </p>
         </Row>
       )}
     </div>
