@@ -67,12 +67,12 @@ function cellSocial(socialLink, type) {
       }
     >
       <a
-        // ref={ref}
         className="socialItem"
         href={type == "email" ? "mailto:" + socialLink : socialLink}
         target="_blank"
         style={{ marginRight: "5px", padding: "0px" }}
-      >
+        rel="noreferrer"
+        >
         {getLogo(type)}
       </a>
     </OverlayTrigger>

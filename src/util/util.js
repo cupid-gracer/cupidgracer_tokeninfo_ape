@@ -17,7 +17,7 @@ import {
         ERC20Abi, 
         PancakeFactoryAbi, 
         BNBPriceURL,
-        axios_link,
+        bitquery_link,
         axios_bitquery_header,    
         test_header,
         CMCApikey,
@@ -66,7 +66,7 @@ class Util
         });
     }
 
-    getAgoTime = function (txSecTime)
+    _getAgoTime = function (txSecTime)
     {
         const dateToTime = date => date.toLocaleString();
         var now = new Date();
@@ -94,6 +94,13 @@ class Util
             hrs = hrs == 0 ? "" : hrs + " hrs";
             return days + " days " + hrs + " ago";
         }
+    }
+
+    _dateToYMD(date) {
+        var d = date.getDate();
+        var m = date.getMonth() + 1;
+        var y = date.getFullYear();
+        return '' + y + '-' + (m<=9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
     }
 
     async getCurrentPrice() {
@@ -225,7 +232,7 @@ class Util
                                 }
                             }`;
         
-        return await this.axiosPostOperation(axios_link, axios_query, axios_bitquery_header).then(axios_res => {
+        return await this.axiosPostOperation(bitquery_link, axios_query, axios_bitquery_header).then(axios_res => {
             return axios_res.data.data.ethereum.address[0].balances[0].value;
         }).catch(axios_res_err => {
             return 0;
@@ -264,7 +271,7 @@ class Util
                             }`;
         let bnbPrice = await fetch(BNBPriceURL).then((response) => { return response.json() });
         bnbPrice = bnbPrice.result.ethusd;
-        return await this.axiosPostOperation(axios_link, axios_query, axios_bitquery_header).then(axios_res => {
+        return await this.axiosPostOperation(bitquery_link, axios_query, axios_bitquery_header).then(axios_res => {
             return {
                     price: axios_res.data.data.ethereum.dexTrades[0].quotePrice * bnbPrice, 
                     symbol: axios_res.data.data.ethereum.dexTrades[0].baseCurrency.symbol,
@@ -279,9 +286,16 @@ class Util
 
     async getTokenPriceFromPancake(tokenAddress)
     {
-        let response = await fetch("https://api.pancakeswap.info/api/v2/tokens/"+ tokenAddress).then((response) => { return response.json() });
-        let price = response.data.price;
-        return price === undefined? 0 : price;
+        try{
+
+            let response = await fetch("https://api.pancakeswap.info/api/v2/tokens/"+ tokenAddress).then((response) => { return response.json() })
+            .catch(err => { return {data:{price:0}}});
+            
+            let price = response.data.price;
+            return price === undefined? 0 : price;
+        }catch(e){
+            return 0;
+        }
     }
     
     async checkAddress(tokenAddress) {
@@ -334,7 +348,7 @@ class Util
                 }
             }
         }`
-        var lastTransactions = await this.axiosPostOperation(axios_link, axios_query, axios_bitquery_header).then(axios_res => {
+        var lastTransactions = await this.axiosPostOperation(bitquery_link, axios_query, axios_bitquery_header).then(axios_res => {
             return { err: false, data: axios_res.data.data.ethereum.dexTrades };
         }).catch(axios_res_err => {
             return { err: true, data: axios_res_err };
@@ -344,18 +358,21 @@ class Util
             'message': "failed get last 50 transactions.",
             "error": lastTransactions.err
         };
-        lastTransactions.data = lastTransactions.data.map((each) => {
 
-            //test
-            let agoTime = this.getAgoTime(each.block.timestamp.unixtime);
+        let tmpResult = [];
+
+        for (let i = 0; i < lastTransactions.data.length; i++) {
+
+            let each = lastTransactions.data[i];
+            let txAction = await this._getLast30dTradeInfo(each.taker.address);
+            let agoTime = this._getAgoTime(each.block.timestamp.unixtime);
             let date = new Date(each.block.timestamp.unixtime * 1000);
             let txDate = date.toLocaleString();
             let from = each.transaction.txFrom.address;
             let to = each.transaction.to.address;
 
             if (each.side === "BUY") {
-                
-                return { 
+                tmpResult.push({ 
                     block: each.block.height, 
                     amount1: each.buyAmount, 
                     token1: each.buyCurrency.symbol, 
@@ -372,11 +389,12 @@ class Util
                     side: each.side, 
                     hash: each.transaction.hash,
                     address: each.taker.address, 
-                    protocol: each.exchange.name
-                }
+                    protocol: each.exchange.name,
+                    txAction: txAction,
+                })
             }
             else if (each.side === "SELL") {
-                return { 
+                tmpResult.push( { 
                     block: each.block.height, 
                     amount1: each.sellAmount, 
                     token1: each.sellCurrency.symbol, 
@@ -393,17 +411,51 @@ class Util
                     side: each.side, 
                     hash: each.transaction.hash,
                     address: each.taker.address, 
-                    protocol: each.exchange.name
-                }
+                    protocol: each.exchange.name,
+                    txAction: txAction,
+                })
             }
-        });
+            
+        }
+        lastTransactions.data = tmpResult;
         lastTransactions.data = lastTransactions.data.sort((a, b) => a.block > b.block);
         // this.myCache.set('last50Transactions_' + tokenAddress, lastTransactions.data);
+        
         return {
             "status": 200,
             'message': "success get last 50 transactions.",
             "data": lastTransactions.data,
         };
+    }
+
+    async _getLast30dTradeInfo(tokenAddress)
+    {
+        const now = new Date();
+        now.setMonth(now.getMonth() - 1);
+        const since = this._dateToYMD(now);
+        let bitquery = `{
+                            ethereum(network: bsc) {
+                                dexTrades(
+                                any: {makerOrTaker: {is: "${tokenAddress}"}, time: {since: "${since}"}}
+                                ) {
+                                tradeAmount(in: USD)
+                                trades: count
+                                }
+                            }
+                        }`;
+
+        var _30dTradeInfo = await this.axiosPostOperation(bitquery_link, bitquery, axios_bitquery_header).then(axios_res => {
+            return { err: false, data: axios_res.data.data.ethereum.dexTrades };
+        }).catch(axios_res_err => {
+            return { err: true, data: axios_res_err };
+        });
+        
+        if (_30dTradeInfo.err || _30dTradeInfo.data === null) return null;
+        
+        if(_30dTradeInfo.data[0].tradeAmount >= 500000) return "whale";
+        if(_30dTradeInfo.data[0].trades >= 1000) return "robot";
+
+        return null;
     }
 
     async getCurrentHolders(tokenAddress) {

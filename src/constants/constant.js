@@ -30,7 +30,7 @@ module.exports = {
   BNBPriceURL:
     "https://api.bscscan.com/api?module=stats&action=bnbprice&apikey=NWMV6N218S7DTUX1XJ61FB5KZRNPRXMQHY",
   
-  axios_link: "https://graphql.bitquery.io",
+  bitquery_link: "https://graphql.bitquery.io",
   axios_bitquery_header : {
     headers: {
         'Content-Type': 'application/json; charset=utf-8',

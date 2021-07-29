@@ -10,6 +10,8 @@ import {
   OverlayTrigger,
   Spinner,
 } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faWhale, faRobot } from '@fortawesome/pro-light-svg-icons';
 
 import { selectTokenPair } from "../../features/tokenPairSlice";
 import { selectSearchToken } from "../../features/searchTokenSlice";
@@ -24,8 +26,8 @@ function createCell(top, bottom) {
   return { top, bottom };
 }
 
-function createData(side, tokens, price, from, to, time, tx, tooltip) {
-  return { side, tokens, price, from, to, time, tx, tooltip };
+function createData(side, tokens, price, from, to, time, tx, tooltip, txAction) {
+  return { side, tokens, price, from, to, time, tx, tooltip, txAction };
 }
 
 function cellElement(element) {
@@ -71,6 +73,34 @@ function tokenRender(basicToken, renderToken) {
   );
 }
 
+function txActionRender(txAction){
+  let element;
+  let text;
+  switch (txAction) {
+    case "whale":
+        element = <FontAwesomeIcon icon={faWhale} color="Dodgerblue" size="2x"/>;
+        text = "Heavy trader with $500k+ of a trading volume last 30 days";
+      break;
+      case "robot":
+        element = <FontAwesomeIcon icon={faRobot}  color="yellow" size="2x"/>;
+        text = "Trader with 1000+ TXs in last 30 days. Most likely bot";
+        break;
+    default:
+      return (<div></div>);
+      break;
+  }
+  return (
+    <OverlayTrigger
+        placement="top"
+        overlay={<Tooltip id="tooltip-top">{text}</Tooltip>}
+      >
+        {element}
+      </OverlayTrigger>
+  );
+
+
+}
+
 function TransactionList(props) {
   const util = props.util;
   const tokenAddress = useSelector(selectSearchToken);
@@ -85,7 +115,6 @@ function TransactionList(props) {
 
   useEffect(() => {
     if (contract === undefined) return;
-    // console.log("contract", contract);
     web3.eth.getBlockNumber().then((currentBlock) => {
       contract.getPastEvents(
         {
@@ -144,8 +173,6 @@ function TransactionList(props) {
             amout2price = amout2price.toFixed(4);
           else if (amout2price >= 0.01)
             amout2price = amout2price.toFixed(2).toLocaleString();
-
-          console.log("tokenPrice", tokenPrice);
           txRows.push(
             createData(
               each.side,
@@ -158,7 +185,8 @@ function TransactionList(props) {
               each.to,
               createCell(each.agoTime, ""),
               createCell(each.hash, "Track"),
-              each.time
+              each.time,
+              each.txAction,
             )
           );
         }
@@ -195,9 +223,10 @@ function TransactionList(props) {
             <th width="15%" style={{ textAlign: "right" }}>
               Price
             </th>
-            <th width="15%" style={{ textAlign: "right" }}>
+            <th width="10%" style={{ textAlign: "right" }}>
               Age&nbsp;
             </th>
+            <th width="5%"></th>
             <th width="15%">Tx&nbsp;</th>
           </tr>
         </thead>
@@ -224,6 +253,7 @@ function TransactionList(props) {
                     {cellElement(row.time)}
                   </OverlayTrigger>
                 </td>
+                <td>{txActionRender(row.txAction)}</td>
                 <td style={{ color: "rgb(62 184 255)" }}>
                   {cellElement(row.tx)}
                 </td>

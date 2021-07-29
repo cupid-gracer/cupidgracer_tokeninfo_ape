@@ -37,12 +37,10 @@ function TokenInfo(props) {
         return;
       }
       let _cmcInfo = await util.getCryptoCurrencyInfo(tokenAddress);
-      console.log("_cmcInfo", _cmcInfo);
       // const holders = await util.getCurrentHolders(tokenAddress);
       // console.log("holders", holders);
 
       const info = await util.getTokenInfo(tokenAddress);
-      console.log("info", info);
       let data = await util.getTotalSupply(tokenAddress);
       setTotalSupply(data);
       setInfo(info);
