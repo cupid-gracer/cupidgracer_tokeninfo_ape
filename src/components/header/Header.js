@@ -51,9 +51,15 @@ export default function PrimarySearchAppBar(props) {
     }
 
     if (status === "connected") {
-      const bal = await util.getBalanceMetamask(account);
-      dispatch(setBalance(bal));
+
       setConnected(true);
+      const interval = setInterval(() => {
+        (async () => {
+          const bal = await util.getBalanceMetamask(account);
+          dispatch(setBalance(bal));
+        })();
+      }, 10000);
+      return () => clearInterval(interval);
     }
   }
 
