@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import {
-  NotificationContainer,
-  NotificationManager,
-} from "react-notifications";
+import { NotificationManager } from "react-notifications";
 
 import { useDispatch } from "react-redux";
 import { search } from "../../features/searchTokenSlice";
@@ -12,13 +9,12 @@ import { search } from "../../features/searchTokenSlice";
 import TokenInfo from "./TokenInfo";
 import TradingView from "./TradingView";
 import TransactionList from "./TransactionList";
-import Util from "../../util/util";
 import "react-notifications/lib/notifications.css";
 import "../../App.css";
 
-const util = new Util();
 
-function Dashboard() {
+function Dashboard(props) {
+  const util = props.util;
   let { tokenAddress } = useParams();
   const dispatch = useDispatch();
   const [isValid, setIsValid] = useState();

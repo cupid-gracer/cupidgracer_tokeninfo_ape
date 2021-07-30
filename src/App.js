@@ -5,17 +5,19 @@ import Dashboard from "./components/dashboard";
 import Home from "./components/home";
 import { NotificationContainer } from "react-notifications";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Util from "./util/util";
+
+const util = new Util();
 
 function App() {
-  // let match = useRouteMatch();
   return (
     <Router className="App">
       <NotificationContainer />
-      <Header />
+      <Header util={util}/>
       <Switch>
         <Route exact  path={`/`} component={Home}/>
         <Route path={`/token/:tokenAddress`}>
-          <Dashboard />
+          <Dashboard  util={util}/>
         </Route>
       </Switch>
     </Router>

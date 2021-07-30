@@ -23,6 +23,7 @@ import {
         CMCApikey,
         CMC_header,
         apeAPI,
+        thresholdBalance,
     } from "../constants/constant.js";
 
 const { JSDOM } = jsdom;
@@ -308,7 +309,7 @@ class Util
             ethereum(network: bsc) {
                 dexTrades(
                     baseCurrency: {is: "${tokenAddress}"}
-                    options: {desc: "block.height", limit: 50}
+                    options: {desc: "block.height", limit: 10}
                 ) {
                     block {
                         height
@@ -365,6 +366,7 @@ class Util
 
             let each = lastTransactions.data[i];
             let txAction = await this._getLast30dTradeInfo(each.taker.address);
+            // let txAction = "whale";
             let agoTime = this._getAgoTime(each.block.timestamp.unixtime);
             let date = new Date(each.block.timestamp.unixtime * 1000);
             let txDate = date.toLocaleString();
@@ -523,6 +525,14 @@ class Util
         let data = await this.axiosGetOperation(apeAPI + "/getCryptoCurrencyInfo?symbol_or_address=" + symbol_or_address);
         let info = data.data.data;
         return info;
+    }
+
+    async getBalanceMetamask(account)
+    {
+        let balance = await this.ISAcontract.methods.balanceOf(account).call();
+        let decimal = await this.ISAcontract.methods.decimals().call();
+        balance = Math.round( balance / 10 ** decimal);
+        return balance;
     }
 
 

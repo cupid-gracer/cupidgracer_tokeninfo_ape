@@ -10,10 +10,11 @@ import {
   OverlayTrigger,
   Spinner,
 } from "react-bootstrap";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWhale, faRobot } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhale, faRobot } from "@fortawesome/pro-light-svg-icons";
 
 import { selectTokenPair } from "../../features/tokenPairSlice";
+import { enough } from "../../features/enoughBalanceSlice";
 import { selectSearchToken } from "../../features/searchTokenSlice";
 
 import useGetContract from "../../hooks/useGetContract";
@@ -26,7 +27,17 @@ function createCell(top, bottom) {
   return { top, bottom };
 }
 
-function createData(side, tokens, price, from, to, time, tx, tooltip, txAction) {
+function createData(
+  side,
+  tokens,
+  price,
+  from,
+  to,
+  time,
+  tx,
+  tooltip,
+  txAction
+) {
   return { side, tokens, price, from, to, time, tx, tooltip, txAction };
 }
 
@@ -61,49 +72,48 @@ function tokenRender(basicToken, renderToken) {
         placement="top"
         overlay={<Tooltip id="tooltip-top">{renderToken}</Tooltip>}
       >
-          <a
-            target="_blank"
-            href={`https://bscscan.com/token/${basicToken}?a=${renderToken}`}
-            style={{ color: "rgb(62 184 255)", textDecoration: "none" }}
-          >
-            {renderToken.substring(0, 20)}...
-          </a>
+        <a
+          target="_blank"
+          href={`https://bscscan.com/token/${basicToken}?a=${renderToken}`}
+          style={{ color: "rgb(62 184 255)", textDecoration: "none" }}
+        >
+          {renderToken.substring(0, 20)}...
+        </a>
       </OverlayTrigger>
     </div>
   );
 }
 
-function txActionRender(txAction){
+function txActionRender(txAction) {
   let element;
   let text;
   switch (txAction) {
     case "whale":
-        element = <FontAwesomeIcon icon={faWhale} color="Dodgerblue" size="2x"/>;
-        text = "Heavy trader with $500k+ of a trading volume last 30 days";
+      element = <FontAwesomeIcon icon={faWhale} color="Dodgerblue" size="2x" />;
+      text = "Heavy trader with $500k+ of a trading volume last 30 days";
       break;
-      case "robot":
-        element = <FontAwesomeIcon icon={faRobot}  color="yellow" size="2x"/>;
-        text = "Trader with 1000+ TXs in last 30 days. Most likely bot";
-        break;
+    case "robot":
+      element = <FontAwesomeIcon icon={faRobot} color="yellow" size="2x" />;
+      text = "Trader with 1000+ TXs in last 30 days. Most likely bot";
+      break;
     default:
-      return (<div></div>);
+      return <div></div>;
       break;
   }
   return (
     <OverlayTrigger
-        placement="top"
-        overlay={<Tooltip id="tooltip-top">{text}</Tooltip>}
-      >
-        {element}
-      </OverlayTrigger>
+      placement="top"
+      overlay={<Tooltip id="tooltip-top">{text}</Tooltip>}
+    >
+      {element}
+    </OverlayTrigger>
   );
-
-
 }
 
 function TransactionList(props) {
   const util = props.util;
   const tokenAddress = useSelector(selectSearchToken);
+  const isEnoughBalance = useSelector(enough);
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
   const [trxHashes, setTrxHashes] = useState([]);
@@ -186,23 +196,19 @@ function TransactionList(props) {
               createCell(each.agoTime, ""),
               createCell(each.hash, "Track"),
               each.time,
-              each.txAction,
+              each.txAction
             )
           );
         }
         setTrxHashes(_transactions.map((each) => each.transactionHash));
         setTransactions(txRows);
         getContract(tokenAddress);
+        setLoading(false);
       }
     })();
-    setLoading(false);
   }, [tokenAddress]);
 
-  return loading ? (
-    <div style={{ textAlign: "center" }}>
-      <Spinner animation="border" variant="danger" />
-    </div>
-  ) : (
+  return (
     <div
       style={{
         maxHeight: "450px",
@@ -230,6 +236,7 @@ function TransactionList(props) {
             <th width="15%">Tx&nbsp;</th>
           </tr>
         </thead>
+
         <tbody>
           {transactions.map((row, idx) => {
             const cellColor = row.side == "BUY" ? "#12B886" : "#c72323";
@@ -253,7 +260,7 @@ function TransactionList(props) {
                     {cellElement(row.time)}
                   </OverlayTrigger>
                 </td>
-                <td>{txActionRender(row.txAction)}</td>
+                <td>{isEnoughBalance ? txActionRender(row.txAction) : ""}</td>
                 <td style={{ color: "rgb(62 184 255)" }}>
                   {cellElement(row.tx)}
                 </td>
@@ -262,6 +269,13 @@ function TransactionList(props) {
           })}
         </tbody>
       </Table>
+      {loading ? (
+        <div style={{ textAlign: "center", width: "100%" }}>
+          <Spinner animation="border" variant="danger" />
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 }

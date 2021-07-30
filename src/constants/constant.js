@@ -29,6 +29,8 @@ module.exports = {
 
   BNBPriceURL:
     "https://api.bscscan.com/api?module=stats&action=bnbprice&apikey=NWMV6N218S7DTUX1XJ61FB5KZRNPRXMQHY",
+
+  thresholdBalance: 10000,
   
   bitquery_link: "https://graphql.bitquery.io",
   axios_bitquery_header : {

@@ -27,3 +27,5 @@ package-lock.json
 
 #other files
 *.zip
+.vscode/settings.json
+package-lock.json
